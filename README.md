@@ -1,0 +1,1 @@
+image-lightbox-dropzone
