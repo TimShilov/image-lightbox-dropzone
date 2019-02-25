@@ -1,138 +1,134 @@
+"use strict";
+
 /*!
  * Image Lightbox Dropzone jQuery Plugin.
  * Created by Tim Shilov - https://github.com/TimShilov/image-lightbox-dropzone
+ * Version: 0.0.2
  */
-
 (function imagePreviewWrapper($) {
-	const defaults = {
-		onDeleted: undefined,
-		onUploaded: undefined,
-		ajax: {
-			method: 'POST',
-			url: '',
-			data: {},
-		},
-		dropzone: {
-			url: '',
-			acceptedFiles: '.jpg,.jpeg,.png',
-			maxFilesize: 4, // MB
-			previewTemplate: '<div style="display: none"></div>',
-			uploadMultiple: false,
-			dictDefaultMessage: '',
-		},
-	};
-	let $shade;
+  var defaults = {
+    onDeleted: undefined,
+    onUploaded: undefined,
+    ajax: {
+      method: 'POST',
+      url: '',
+      data: {}
+    },
+    dropzone: {
+      url: '',
+      acceptedFiles: '.jpg,.jpeg,.png',
+      maxFilesize: 4,
+      // MB
+      previewTemplate: '<div style="display: none"></div>',
+      uploadMultiple: false,
+      dictDefaultMessage: ''
+    }
+  };
+  var $shade;
 
-	function attachLightbox(element, opts) {
-		const options = $.extend(true, {}, defaults, opts);
-		$(element).data('options', options);
-		$(element).off('click').on('click', () => {
-			openShade($(element), element.tagName !== 'IMG');
-		});
-	}
+  function attachLightbox(element, opts) {
+    var $element = $(element);
+    var options = $.extend(true, {}, defaults, opts);
+    $element.data('options', options);
 
-	const openShade = ($element, forceDropzone = false) => {
-		$('#imageShade').remove();
-		const URL = $($element).attr('src');
-        const options = $element.data('options');
-        
-		const shadeTemplate = `<div id="imageShade" class="shade" style="display: none">
-                              <button class="closeBtn">+</button>
-                              <div>
-                                 <div class="image-wrapper" style="${forceDropzone ? 'display: none' : ''}">
-                                    <img id="shadeImg" src="${URL}" alt="">
-                                    <div class="buttons">
-                                       <a class="deleteBtn">
-                                          <i class="fa fa-trash" aria-hidden="true"></i>
-                                       </a>
-                                    </div>
-                                 </div>
-                                 <div class="dropzone drop-area dropzone-file-area" id="image-block-dropzone" style="${forceDropzone ? '' : 'display: none'}">
-												<div class="dz-default dz-message">
-													<h3>Drop files here or click to upload</h3>
-												</div>
-                                 </div>
-                              </div>
-                           </div>`;
+    if (element.tagName !== 'IMG') {
+      $element.addClass('ild-no-image');
+      $element.html('Add Image<i class="fa fa-pencil"></i>');
+    }
 
-		$shade = $(shadeTemplate).appendTo('body');
-		$shade.off('click').on('click', (event) => {
-			if(event.target.className === 'shade') {
-				closeShade();
-			}
-		});
-		if(forceDropzone) {
-			initDropzone(options);
-		}
-		$shade.find('.closeBtn').off('click').on('click', closeShade);
-		$shade.find('.deleteBtn').off('click').on('click', () => {
-			deleteImage(options);
-		});
-		$shade.fadeIn(150);
-	};
+    $element.off('click').on('click', function () {
+      openShade($element, element.tagName !== 'IMG');
+    });
+  }
 
-	const closeShade = () => {
-		$('#imageShade').fadeOut(150, () => {
-			$('#imageShade').remove();
-		});
-	};
+  var openShade = function openShade($element) {
+    var forceDropzone = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+    $('#ild-shade').remove();
+    var URL = $element.attr('src');
+    var options = $element.data('options');
+    var shadeTemplate = "<div id=\"ild-shade\" class=\"shade\" style=\"display: none\">\n\t\t\t\t\t\t\t\t<button class=\"closeBtn\">+</button>\n\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t<div class=\"image-wrapper\" style=\"".concat(forceDropzone ? 'display: none' : '', "\">\n\t\t\t\t\t\t\t\t\t\t<img id=\"shadeImg\" src=\"").concat(URL, "\" alt=\"\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"buttons\">\n\t\t\t\t\t\t\t\t\t\t<a class=\"deleteBtn\">\n\t\t\t\t\t\t\t\t\t\t\t<i class=\"fa fa-trash\" aria-hidden=\"true\"></i>\n\t\t\t\t\t\t\t\t\t\t</a>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div id=\"ild-dropzone\" class=\"dropzone drop-area dropzone-file-area\" style=\"").concat(forceDropzone ? '' : 'display: none', "\">\n\t\t\t\t\t\t\t\t\t\t<div class=\"dz-default dz-message\">\n\t\t\t\t\t\t\t\t\t\t\t<h3>Drop new image here or click to upload</h3>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>");
+    $shade = $(shadeTemplate).appendTo('body');
+    $shade.off('click').on('click', function (event) {
+      if (event.target.className === 'shade') {
+        closeShade();
+      }
+    });
 
-	const deleteImage = (options) => {
-		$.ajax({
-			url: options.ajax.url,
-			method: options.ajax.method,
-			data: options.ajax.data,
-		})
-			.done(() => {
-				toastr.success('Image deleted successfully.');
-				$shade.find('img').remove();
-				$('.image-wrapper').hide();
+    if (forceDropzone) {
+      initDropzone(options);
+    }
 
-				initDropzone(options);
-				if(options.onDeleted) {
-					options.onDeleted();
-				}
-			})
-			.fail((response) => {
-				toastr.error(response.responseJSON.error || 'Image not updated.');
-			});
-	};
+    $shade.find('.closeBtn').off('click').on('click', closeShade);
+    $shade.find('.deleteBtn').off('click').on('click', function () {
+      deleteImage(options);
+    });
+    $shade.fadeIn(150);
+  };
 
-	const initDropzone = (options) => {
-		const dropzoneConfig = $.extend(true, {}, options.dropzone, {
-			init: function init() {
-				this.on('success', (file, response) => {
-					if(response.status !== 'success') {
-						toastr.error(response.responseJSON.error || 'Image not updated.');
-						return false;
-					}
-					toastr.success('Image added successfully.');
-					closeShade();
-					if(options.onUploaded) {
-						options.onUploaded();
-					}
-					this.removeFile(file);
-				});
+  var closeShade = function closeShade() {
+    $('#ild-shade').fadeOut(150, function () {
+      $('#ild-shade').remove();
+    });
+  };
 
-				this.on('error', (file, err) => {
-					this.removeFile(file);
-					toastr.error(err.error || err || 'Error');
-				});
-			},
-		});
+  var deleteImage = function deleteImage(options) {
+    $.ajax({
+      url: options.ajax.url,
+      method: options.ajax.method,
+      data: options.ajax.data
+    }).done(function () {
+      toastr.success('Image deleted successfully.');
+      $shade.find('img').remove();
+      $('.image-wrapper').hide();
+      initDropzone(options);
 
-		$shade.find('.dropzone').dropzone(dropzoneConfig).show();
-	};
+      if (options.onDeleted) {
+        options.onDeleted();
+      }
+    }).fail(function (response) {
+      toastr.error(response.responseJSON.error || 'Image not updated.');
+    });
+  };
 
-	$.fn.imageLightbox = function imageLightbox(options) {
-		// Verify an empty collection wasn't passed.
-		if(!this.length) {
-			return this;
-		}
+  var initDropzone = function initDropzone(options) {
+    var dropzoneConfig = $.extend(true, {}, options.dropzone, {
+      init: function init() {
+        var _this = this;
 
-		// Loop through each plugin object and attach Lightbox.
-		return this.each(function attachImageLightbox() {
-			attachLightbox(this, options);
-		});
-	};
-}(jQuery));
+        this.on('success', function (file, response) {
+          if (response.status !== 'success') {
+            toastr.error(response.responseJSON.error || 'Image not updated.');
+            return false;
+          }
+
+          toastr.success('Image added successfully.');
+          closeShade();
+
+          if (options.onUploaded) {
+            options.onUploaded();
+          }
+
+          _this.removeFile(file);
+        });
+        this.on('error', function (file, err) {
+          _this.removeFile(file);
+
+          toastr.error(err.error || err || 'Error');
+        });
+      }
+    });
+    $shade.find('.dropzone').dropzone(dropzoneConfig).show();
+  };
+
+  $.fn.imageLightbox = function imageLightbox(options) {
+    // Verify an empty collection wasn't passed.
+    if (!this.length) {
+      return this;
+    } // Loop through each plugin object and attach Lightbox.
+
+
+    return this.each(function attachImageLightbox() {
+      attachLightbox(this, options);
+    });
+  };
+})(jQuery);

@@ -1,6 +1,6 @@
 {
   "name": "image-lightbox-dropzone",
-  "version": "1.6.1",
+  "version": "0.0.2",
   "description": "Tiny image lightbox plugin with ability to delete or upload new files via ajax (jQuery plugin)",
   "main": "image-lightbox-dropzone",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/RamonSmit/Nestable2.git"
+    "url": "git://github.com/TimShilov/image-lightbox-dropzone.git"
   },
   "keywords": [
     "jquery",
@@ -26,13 +26,15 @@
     "dropzone": ">=5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
+    "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^3.10.0",
     "gulp-eslint": "^5.0.0",
     "gulp-rename": "^1.4.0",
+    "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.0.2",
     "gulp-uglify": "^3.0.1",
     "node-sass": "^4.11.0"
