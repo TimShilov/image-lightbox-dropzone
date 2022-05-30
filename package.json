@@ -35,9 +35,9 @@
     "gulp-eslint": "^5.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-replace": "^1.0.0",
-    "gulp-sass": "^4.0.2",
+    "gulp-sass": "^5.0.0",
     "gulp-uglify": "^3.0.1",
-    "node-sass": "^4.11.0"
+    "node-sass": "^5.0.0"
   },
   "license": "MIT",
   "bugs": {
